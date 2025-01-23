@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import {
-  HiOutlineBold,
   HiOutlineCalendarDays,
   HiOutlineCog6Tooth,
   HiOutlineHome,

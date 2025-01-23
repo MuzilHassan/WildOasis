@@ -1,57 +1,29 @@
-import styled from "styled-components";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { useForm } from "react-hook-form";
 
 import Input from "../../ui/Input";
 import Form from "../../ui/Form";
 import Button from "../../ui/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
-import { useForm } from "react-hook-form";
-import { da } from "date-fns/locale";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { insetCabin } from "../../services/apiCabins";
-import toast from "react-hot-toast";
+import FormRow from "../../ui/FormRow";
 
-const FormRow = styled.div`
-  display: grid;
-  align-items: center;
-  grid-template-columns: 24rem 1fr 1.2fr;
-  gap: 2.4rem;
+import { insetEditCabin } from "../../services/apiCabins";
 
-  padding: 1.2rem 0;
+function CreateCabinForm({ setShowForm, cabin = {} }) {
+  const { id: cabinId, ...values } = cabin;
+  const isEdit = Boolean(cabinId);
 
-  &:first-child {
-    padding-top: 0;
-  }
-
-  &:last-child {
-    padding-bottom: 0;
-  }
-
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--color-grey-100);
-  }
-
-  &:has(button) {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1.2rem;
-  }
-`;
-
-const Label = styled.label`
-  font-weight: 500;
-`;
-
-const Error = styled.span`
-  font-size: 1.4rem;
-  color: var(--color-red-700);
-`;
-
-function CreateCabinForm({ setShowForm }) {
-  const { register, handleSubmit } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+  } = useForm({ defaultValues: isEdit ? values : {} });
   const query = useQueryClient();
-  const { isPending, mutate } = useMutation({
-    mutationFn: insetCabin,
+  const { isPending: isCreating, mutate } = useMutation({
+    mutationFn: insetEditCabin,
     onSuccess: () => {
       query.invalidateQueries("cabins");
       toast.success("cabin data added successfully");
@@ -61,49 +33,104 @@ function CreateCabinForm({ setShowForm }) {
       toast.error(error.message);
     },
   });
+
+  const { isPending: isEditing, mutate: mutateEdit } = useMutation({
+    mutationFn: ({ cabin, id }) => insetEditCabin(cabin, id),
+    onSuccess: () => {
+      query.invalidateQueries("cabins");
+      toast.success("cabin data edited successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const isPending = isCreating || isEditing;
+
   const onSubmit = (data) => {
-    mutate(data);
+    const image =
+      typeof data?.image === "string" ? data?.image : data?.image[0];
+    const cabin = { ...data, image: image };
+    if (isEdit) mutateEdit({ cabin, id: cabinId });
+    else mutate(cabin);
   };
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      <FormRow>
-        <Label htmlFor="name">Cabin name</Label>
-        <Input type="text" id="name" {...register("name")} />
+      <FormRow label={"name"} error={errors?.name?.message}>
+        <Input
+          type="text"
+          id="name"
+          disabled={isPending}
+          {...register("name", {
+            required: "This Feild is required",
+          })}
+        />
       </FormRow>
 
-      <FormRow>
-        <Label htmlFor="maxCapacity">Maximum capacity</Label>
-        <Input type="number" id="maxCapacity" {...register("maxCapacity")} />
+      <FormRow label={"Maximum capacity"} error={errors?.maxCapacity?.message}>
+        <Input
+          type="number"
+          id="maxCapacity"
+          disabled={isPending}
+          {...register("maxCapacity", {
+            required: "This Feild is required",
+            min: 1,
+            message: "Capacity should be atleast one",
+          })}
+        />
       </FormRow>
 
-      <FormRow>
-        <Label htmlFor="regularPrice">Regular price</Label>
-        <Input type="number" id="regularPrice" {...register("regularPrice")} />
+      <FormRow label={"Regular price"} error={errors?.regularPrice?.message}>
+        <Input
+          type="number"
+          id="regularPrice"
+          disabled={isPending}
+          {...register("regularPrice", {
+            required: "This Feild is required",
+          })}
+        />
       </FormRow>
 
-      <FormRow>
-        <Label htmlFor="discount">Discount</Label>
+      <FormRow label={"Discount"} error={errors?.discount?.message}>
         <Input
           type="number"
           id="discount"
+          disabled={isPending}
           defaultValue={0}
-          {...register("discount")}
+          {...register("discount", {
+            required: "This Feild is required",
+            validate: (value) =>
+              parseFloat(value) <= parseFloat(getValues().regularPrice) ||
+              "Discount cannot be greather then regular price",
+          })}
         />
       </FormRow>
 
-      <FormRow>
-        <Label htmlFor="description">Description for website</Label>
+      <FormRow
+        label={"Description for Website"}
+        error={errors?.description?.message}
+      >
         <Textarea
           type="number"
+          disabled={isPending}
           id="description"
           defaultValue=""
-          {...register("description")}
+          {...register("description", {
+            required: "This Feild is required",
+          })}
         />
       </FormRow>
 
-      <FormRow>
-        <Label htmlFor="image">Cabin photo</Label>
-        <FileInput id="image" accept="image/*" />
+      <FormRow label={"Image"}>
+        <FileInput
+          id="image"
+          accept="image/*"
+          disabled={isPending}
+          {...register("image", {
+            required: isEdit ? false : "This Feild is required",
+          })}
+        />
       </FormRow>
 
       <FormRow>
@@ -111,7 +138,9 @@ function CreateCabinForm({ setShowForm }) {
         <Button variation="secondary" type="reset">
           Cancel
         </Button>
-        <Button disabled={isPending}>Add cabin</Button>
+        <Button disabled={isPending}>
+          {isEdit ? "Edit Cabin" : "Create New Cabin"}
+        </Button>
       </FormRow>
     </Form>
   );

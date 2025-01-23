@@ -27,7 +27,7 @@ function AppLayout() {
     <StledAppLayout>
       <Header />
       <Sidebar />
-      <StyledMain>
+      <StyledMain style={{ overflowY: "scroll" }}>
         <Container>
           <Outlet />
         </Container>
