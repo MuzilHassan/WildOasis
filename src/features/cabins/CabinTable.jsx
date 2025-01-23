@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import CabinRow from "./CabinRow";
-import { useQuery } from "@tanstack/react-query";
 import Spinner from "../../ui/Spinner";
-import { getCabins } from "../../services/apiCabins";
+
+import useCabins from "./useCabins";
 
 const Table = styled.div`
   border: 1px solid var(--color-grey-200);
@@ -28,10 +28,7 @@ const TableHeader = styled.header`
   padding: 1.6rem 2.4rem;
 `;
 function CabinTable() {
-  const { isPending, isError, data } = useQuery({
-    queryKey: ["cabins"],
-    queryFn: getCabins,
-  });
+  const { isPending, data } = useCabins();
   if (isPending) return <Spinner />;
   if (data.length == 0) return <p>Your Database is currently empty</p>;
   return (

@@ -10,6 +10,8 @@ import Textarea from "../../ui/Textarea";
 import FormRow from "../../ui/FormRow";
 
 import { insetEditCabin } from "../../services/apiCabins";
+import useCreateCabin from "./useCreateCabin";
+import useEditCabin from "./useEditCabin";
 
 function CreateCabinForm({ setShowForm, cabin = {} }) {
   const { id: cabinId, ...values } = cabin;
@@ -20,30 +22,11 @@ function CreateCabinForm({ setShowForm, cabin = {} }) {
     handleSubmit,
     formState: { errors },
     getValues,
+    reset,
   } = useForm({ defaultValues: isEdit ? values : {} });
-  const query = useQueryClient();
-  const { isPending: isCreating, mutate } = useMutation({
-    mutationFn: insetEditCabin,
-    onSuccess: () => {
-      query.invalidateQueries("cabins");
-      toast.success("cabin data added successfully");
-      setShowForm(false);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
 
-  const { isPending: isEditing, mutate: mutateEdit } = useMutation({
-    mutationFn: ({ cabin, id }) => insetEditCabin(cabin, id),
-    onSuccess: () => {
-      query.invalidateQueries("cabins");
-      toast.success("cabin data edited successfully");
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const { isCreating, mutate } = useCreateCabin();
+  const { isEditing, mutateEdit } = useEditCabin();
 
   const isPending = isCreating || isEditing;
 
@@ -52,7 +35,13 @@ function CreateCabinForm({ setShowForm, cabin = {} }) {
       typeof data?.image === "string" ? data?.image : data?.image[0];
     const cabin = { ...data, image: image };
     if (isEdit) mutateEdit({ cabin, id: cabinId });
-    else mutate(cabin);
+    else
+      mutate(cabin, {
+        onSuccess: () => {
+          setShowForm(false);
+          reset();
+        },
+      });
   };
 
   return (
