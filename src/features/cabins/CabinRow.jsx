@@ -1,9 +1,12 @@
 import styled from "styled-components";
 import { formatCurrency } from "../../utils/helpers";
-
+import { HiOutlineTrash } from "react-icons/hi2";
 import { useState } from "react";
 import CreateCabinForm from "./CreateCabinForm";
 import useDeleteCabin from "./useDeleteCabin";
+import { HiOutlineDuplicate } from "react-icons/hi";
+import { BiEdit } from "react-icons/bi";
+import useCreateCabin from "./useCreateCabin";
 const TableRow = styled.div`
   display: grid;
   grid-template-columns: 0.6fr 1.8fr 2.2fr 1fr 1fr 1fr;
@@ -46,7 +49,9 @@ function CabinRow({ cabin }) {
   const { name, maxCapacity, image, discount, regularPrice, id } = cabin;
 
   const { isPending, mutate } = useDeleteCabin();
+  const { isCreating, mutate: mutateCreate } = useCreateCabin();
   const [showForm, setShowForm] = useState(false);
+
   return (
     <>
       <TableRow role="row">
@@ -57,9 +62,25 @@ function CabinRow({ cabin }) {
         <Discount>{discount}</Discount>
         <div>
           <button disabled={isPending} onClick={() => mutate(id)}>
-            Delete
+            <HiOutlineTrash />
           </button>
-          <button onClick={() => setShowForm((state) => !state)}>Edit</button>
+          <button onClick={() => setShowForm((state) => !state)}>
+            <BiEdit />
+          </button>
+          <button
+            disabled={isCreating}
+            onClick={() =>
+              mutateCreate({
+                maxCapacity,
+                image,
+                discount,
+                regularPrice,
+                name: `Copy of ${name}`,
+              })
+            }
+          >
+            <HiOutlineDuplicate />
+          </button>
         </div>
       </TableRow>
       {showForm && <CreateCabinForm cabin={cabin} />}
