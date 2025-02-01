@@ -7,6 +7,8 @@ import useDeleteCabin from "./useDeleteCabin";
 import { HiOutlineDuplicate } from "react-icons/hi";
 import { BiEdit } from "react-icons/bi";
 import useCreateCabin from "./useCreateCabin";
+import Modal from "../../ui/ModalV2";
+import ConfirmDelete from "../../ui/ConfirmDelete";
 const TableRow = styled.div`
   display: grid;
   grid-template-columns: 0.6fr 1.8fr 2.2fr 1fr 1fr 1fr;
@@ -50,41 +52,51 @@ function CabinRow({ cabin }) {
 
   const { isPending, mutate } = useDeleteCabin();
   const { isCreating, mutate: mutateCreate } = useCreateCabin();
-  const [showForm, setShowForm] = useState(false);
 
   return (
-    <>
-      <TableRow role="row">
-        <Img src={`${image}`} alt="cabin_image" />
-        <Cabin>{name}</Cabin>
-        <div>Can fit upto {maxCapacity} peoples</div>
-        <Price>{formatCurrency(regularPrice)}</Price>
-        <Discount>{discount}</Discount>
-        <div>
-          <button disabled={isPending} onClick={() => mutate(id)}>
-            <HiOutlineTrash />
-          </button>
-          <button onClick={() => setShowForm((state) => !state)}>
-            <BiEdit />
-          </button>
-          <button
-            disabled={isCreating}
-            onClick={() =>
-              mutateCreate({
-                maxCapacity,
-                image,
-                discount,
-                regularPrice,
-                name: `Copy of ${name}`,
-              })
-            }
-          >
-            <HiOutlineDuplicate />
-          </button>
-        </div>
-      </TableRow>
-      {showForm && <CreateCabinForm cabin={cabin} />}
-    </>
+    <TableRow role="row">
+      <Img src={`${image}`} alt="cabin_image" />
+      <Cabin>{name}</Cabin>
+      <div>Can fit upto {maxCapacity} peoples</div>
+      <Price>{formatCurrency(regularPrice)}</Price>
+      <Discount>{discount}</Discount>
+      <div>
+        <Modal>
+          <Modal.Open opens={"delete-cabin"}>
+            <button>
+              <HiOutlineTrash />
+            </button>
+          </Modal.Open>
+          <Modal.Window name={"delete-cabin"}>
+            <ConfirmDelete onConfirm={() => mutate(id)} disabled={isPending} />
+          </Modal.Window>
+
+          <Modal.Open opens={"edit-cabin"}>
+            <button>
+              <BiEdit />
+            </button>
+          </Modal.Open>
+          <Modal.Window name={"edit-cabin"}>
+            <CreateCabinForm cabin={cabin} />
+          </Modal.Window>
+        </Modal>
+
+        <button
+          disabled={isCreating}
+          onClick={() =>
+            mutateCreate({
+              maxCapacity,
+              image,
+              discount,
+              regularPrice,
+              name: `Copy of ${name}`,
+            })
+          }
+        >
+          <HiOutlineDuplicate />
+        </button>
+      </div>
+    </TableRow>
   );
 }
 

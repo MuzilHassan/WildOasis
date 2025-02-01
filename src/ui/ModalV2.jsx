@@ -1,7 +1,14 @@
 import styled from "styled-components";
 import { IoMdClose } from "react-icons/io";
 import { createPortal } from "react-dom";
-
+import {
+  cloneElement,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import useEscapeKey from "../hooks/useEscapeKey";
 const StyledModal = styled.div`
   position: fixed;
   top: 50%;
@@ -51,18 +58,45 @@ const Button = styled.button`
   }
 `;
 
-function Modal({ onClose, children }) {
+const ModelContext = createContext();
+
+const Modal = ({ children }) => {
+  const [openName, setOpenName] = useState("");
+
+  const close = () => {
+    setOpenName("");
+  };
+  const open = setOpenName;
+
+  return (
+    <ModelContext.Provider value={{ openName, close, open }}>
+      {children}
+    </ModelContext.Provider>
+  );
+};
+const Open = ({ opens, children }) => {
+  const { open } = useContext(ModelContext);
+
+  return cloneElement(children, { onClick: () => open(opens) });
+};
+function Window({ name, children }) {
+  const { openName, close } = useContext(ModelContext);
+  useEscapeKey(close);
+  if (name != openName) return null;
   return createPortal(
-    <Overlay>
-      <StyledModal>
-        <Button onClick={onClose}>
+    <Overlay onClick={close}>
+      <StyledModal onClick={(e) => e.stopPropagation()}>
+        <Button onClick={close}>
           <IoMdClose />
         </Button>
-        <div>{children}</div>
+        <div>{cloneElement(children, { onClose: close })}</div>
       </StyledModal>
     </Overlay>,
     document.body
   );
 }
+
+Modal.Open = Open;
+Modal.Window = Window;
 
 export default Modal;
