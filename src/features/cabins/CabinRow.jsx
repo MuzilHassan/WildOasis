@@ -9,17 +9,18 @@ import { BiEdit } from "react-icons/bi";
 import useCreateCabin from "./useCreateCabin";
 import Modal from "../../ui/ModalV2";
 import ConfirmDelete from "../../ui/ConfirmDelete";
-const TableRow = styled.div`
-  display: grid;
-  grid-template-columns: 0.6fr 1.8fr 2.2fr 1fr 1fr 1fr;
-  column-gap: 2.4rem;
-  align-items: center;
-  padding: 1.4rem 2.4rem;
+import Table from "../../ui/Table";
+// const TableRow = styled.div`
+//   display: grid;
+//   grid-template-columns: 0.6fr 1.8fr 2.2fr 1fr 1fr 1fr;
+//   column-gap: 2.4rem;
+//   align-items: center;
+//   padding: 1.4rem 2.4rem;
 
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--color-grey-100);
-  }
-`;
+//   &:not(:last-child) {
+//     border-bottom: 1px solid var(--color-grey-100);
+//   }
+// `;
 
 const Img = styled.img`
   display: block;
@@ -54,7 +55,7 @@ function CabinRow({ cabin }) {
   const { isCreating, mutate: mutateCreate } = useCreateCabin();
 
   return (
-    <TableRow role="row">
+    <Table.Row>
       <Img src={`${image}`} alt="cabin_image" />
       <Cabin>{name}</Cabin>
       <div>Can fit upto {maxCapacity} peoples</div>
@@ -68,7 +69,11 @@ function CabinRow({ cabin }) {
             </button>
           </Modal.Open>
           <Modal.Window name={"delete-cabin"}>
-            <ConfirmDelete onConfirm={() => mutate(id)} disabled={isPending} />
+            <ConfirmDelete
+              onConfirm={() => mutate(id)}
+              disabled={isPending}
+              resourceName={name}
+            />
           </Modal.Window>
 
           <Modal.Open opens={"edit-cabin"}>
@@ -96,7 +101,7 @@ function CabinRow({ cabin }) {
           <HiOutlineDuplicate />
         </button>
       </div>
-    </TableRow>
+    </Table.Row>
   );
 }
 
