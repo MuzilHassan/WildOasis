@@ -75,7 +75,7 @@ const TableBody = ({ data, render }) => {
 };
 const Row = ({ children }) => {
   const { columns } = useContext(TableContext);
-  console.log(columns);
+
   return (
     <StyledRow columns={columns} role="row">
       {children}

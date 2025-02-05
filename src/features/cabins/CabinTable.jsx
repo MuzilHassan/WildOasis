@@ -4,6 +4,8 @@ import Spinner from "../../ui/Spinner";
 
 import useCabins from "./useCabins";
 import Table from "../../ui/Table";
+import { useSearchParams } from "react-router-dom";
+import { da } from "date-fns/locale";
 
 // const Table = styled.div`
 //   border: 1px solid var(--color-grey-200);
@@ -29,7 +31,16 @@ import Table from "../../ui/Table";
 //   padding: 1.6rem 2.4rem;
 // `;
 function CabinTable() {
-  const { isPending, data } = useCabins();
+  const { isPending, data = [] } = useCabins();
+  const [searchParams] = useSearchParams();
+
+  const value = searchParams.get("discount") || "all";
+  let filteredData;
+  if (value === "all") filteredData = data;
+  if (value === "no-discount")
+    filteredData = data.filter((data) => data.discount == 0);
+  if (value === "with-discount")
+    filteredData = data.filter((data) => data.discount > 0);
   if (isPending) return <Spinner />;
   if (data.length == 0) return <p>Your Database is currently empty</p>;
   return (
@@ -43,7 +54,7 @@ function CabinTable() {
         <div></div>
       </Table.TableHeader>
       <Table.TableBody
-        data={data}
+        data={filteredData}
         render={(cabin) => <CabinRow key={cabin?.id} cabin={cabin} />}
       />
     </Table>
