@@ -1,11 +1,9 @@
-import styled from "styled-components";
 import CabinRow from "./CabinRow";
 import Spinner from "../../ui/Spinner";
 
 import useCabins from "./useCabins";
 import Table from "../../ui/Table";
 import { useSearchParams } from "react-router-dom";
-import { da } from "date-fns/locale";
 
 // const Table = styled.div`
 //   border: 1px solid var(--color-grey-200);

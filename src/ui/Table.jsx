@@ -85,7 +85,7 @@ const Row = ({ children }) => {
 function Table({ columns, children }) {
   return (
     <TableContext.Provider value={{ columns }}>
-      <StyledTable role="table">{children}</StyledTable>;
+      <StyledTable role="table">{children}</StyledTable>
     </TableContext.Provider>
   );
 }
