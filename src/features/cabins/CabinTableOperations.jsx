@@ -1,5 +1,7 @@
 import Filter from "../../ui/Filter";
+
 import TableOperations from "../../ui/TableOperations";
+import SortBy from "./SortBy";
 
 function CabinTableOperations() {
   return (
@@ -15,6 +17,7 @@ function CabinTableOperations() {
           },
         ]}
       />
+      <SortBy />
     </TableOperations>
   );
 }

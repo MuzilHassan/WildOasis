@@ -41,6 +41,12 @@ function CabinTable() {
     filteredData = data.filter((data) => data.discount == 0);
   if (value === "with-discount")
     filteredData = data.filter((data) => data.discount > 0);
+  const sortVal = searchParams.get("sort") || "created_at-dsc";
+  const [feild, order] = sortVal.split("-");
+  const validator = order === "asc" ? 1 : -1;
+  const sortedData = filteredData.sort(
+    (a, b) => (a[feild] - b[feild]) * validator
+  );
   if (isPending) return <Spinner />;
   if (data.length == 0) return <p>Your Database is currently empty</p>;
   return (
@@ -54,7 +60,7 @@ function CabinTable() {
         <div></div>
       </Table.TableHeader>
       <Table.TableBody
-        data={filteredData}
+        data={sortedData}
         render={(cabin) => <CabinRow key={cabin?.id} cabin={cabin} />}
       />
     </Table>
