@@ -8,6 +8,7 @@ import {
   HiOutlineUsers,
 } from "react-icons/hi2";
 import { NavLink } from "react-router-dom";
+import Uploader from "../data/Uploader";
 const NavList = styled.ul`
   display: flex;
   flex-direction: column;
@@ -88,6 +89,7 @@ function MainNav() {
           </StyledNavLink>
         </li>
       </NavList>
+      <Uploader />
     </nav>
   );
 }
