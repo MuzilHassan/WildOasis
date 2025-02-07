@@ -1,10 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getBookings } from "../../services/apiBookings";
-import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
+import { PAGE_SIZE } from "../../utils/globalConstants";
 
 function useBookings() {
   const [searchParams] = useSearchParams();
+  const query = useQueryClient();
   const filterValue = searchParams.get("status");
   const sort = searchParams.get("sort") || "startDate-desc";
   const filter =
@@ -22,7 +23,21 @@ function useBookings() {
     queryFn: () => getBookings(filter, sort, page),
   });
 
+  const pageCount = Math.ceil(count / PAGE_SIZE);
+  if (page < pageCount)
+    query.prefetchQuery({
+      queryKey: ["bookings", filter, sort, page + 1],
+      queryFn: () => getBookings(filter, sort, page + 1),
+    });
+  if (page > 1)
+    query.prefetchQuery({
+      queryKey: ["bookings", filter, sort, page - 1],
+      queryFn: () => getBookings(filter, sort, page - 1),
+    });
+
   return { isPending, bookings, count, isError, error };
+
+  ///Anoter option will be using infinite queries to implement infinite scrolling unless data loading completed.
 }
 
 export default useBookings;
