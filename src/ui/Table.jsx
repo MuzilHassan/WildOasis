@@ -93,4 +93,5 @@ function Table({ columns, children }) {
 Table.TableHeader = TableHeader;
 Table.TableBody = TableBody;
 Table.Row = Row;
+Table.Footer = Footer;
 export default Table;
