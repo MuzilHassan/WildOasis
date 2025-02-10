@@ -6,6 +6,8 @@ import Table from "../../ui/Table";
 
 import { formatCurrency } from "../../utils/helpers";
 import { formatDistanceFromNow } from "../../utils/helpers";
+import { Link } from "react-router-dom";
+import { HiArrowDownOnSquare, HiOutlineEye } from "react-icons/hi2";
 
 const Cabin = styled.div`
   font-size: 1.6rem;
@@ -32,6 +34,12 @@ const Stacked = styled.div`
 const Amount = styled.div`
   font-family: "Sono";
   font-weight: 500;
+`;
+const BtnContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center; /* This ensures horizontal centering */
+  gap: 4px;
 `;
 
 function BookingRow({
@@ -79,6 +87,16 @@ function BookingRow({
       <Tag type={statusToTagName[status]}>{status.replace("-", " ")}</Tag>
 
       <Amount>{formatCurrency(totalPrice)}</Amount>
+      <BtnContainer>
+        <Link to={`${bookingId}`}>
+          <HiOutlineEye />
+        </Link>
+        {status === "unconfirmed" && (
+          <Link to={`/checkin/${bookingId}`} style={{ marginBottom: "3px" }}>
+            <HiArrowDownOnSquare />
+          </Link>
+        )}
+      </BtnContainer>
     </Table.Row>
   );
 }
