@@ -6,7 +6,7 @@ import useBookings from "./useBookings";
 import Pagination from "../../ui/Pagination";
 function BookingTable() {
   const { isPending, error, isError, bookings = [], count } = useBookings();
-  console.log(error);
+
   if (isError)
     return (
       <p>

@@ -13,7 +13,8 @@ import useBooking from "../bookings/useBooking";
 import Spinner from "../../ui/Spinner";
 import { useEffect, useState } from "react";
 import useCheckin from "./useCheckin";
-
+import useSettings from "../settings/useSettings";
+import { formatCurrency } from "../../utils/helpers";
 const Box = styled.div`
   /* Box */
   background-color: var(--color-grey-0);
@@ -25,22 +26,41 @@ const Box = styled.div`
 function CheckinBooking() {
   const moveBack = useMoveBack();
   const [confirm, setConfirm] = useState(false);
+  const [wantBreakfast, setWantBreakfast] = useState(false);
+
   const { data: booking = {}, isPending } = useBooking();
+  const { data: { breakfastPrice } = {} } = useSettings();
   const { isCheckin, mutate } = useCheckin();
   const {
     id: bookingId,
 
     isPaid,
     status,
+    totalPrice,
+    hasBreakfast,
+    numGuests,
+    numNights,
   } = booking;
+
+  const addBreakfastPrice = breakfastPrice * numGuests * numNights;
 
   useEffect(() => {
     setConfirm(isPaid ?? false);
   }, [isPaid]);
   function handleCheckin() {
     if (!confirm) return;
-    mutate(bookingId);
+    if (wantBreakfast) {
+      const extrasObject = {
+        extrasPrice: addBreakfastPrice,
+        hasBreakfast: true,
+        totalPrice: totalPrice + addBreakfastPrice,
+      };
+      mutate({ bookingId, extrasObject });
+    } else {
+      mutate({ bookingId, extrasObject: {} });
+    }
   }
+
   if (isPending) return <Spinner />;
   return (
     <>
@@ -48,8 +68,21 @@ function CheckinBooking() {
         <Heading as="h1">Check in booking #{bookingId}</Heading>
         <ButtonText onClick={moveBack}>&larr; Back</ButtonText>
       </Row>
-
       <BookingDataBox booking={booking} />
+      {!hasBreakfast && (
+        <Box>
+          <Checkbox
+            id={bookingId}
+            onChange={() => {
+              setWantBreakfast((state) => !state);
+            }}
+            checked={wantBreakfast}
+          >
+            Do you want to add breakfast for {formatCurrency(addBreakfastPrice)}{" "}
+            amount
+          </Checkbox>
+        </Box>
+      )}{" "}
       <Box>
         <Checkbox
           id={bookingId}

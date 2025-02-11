@@ -10,7 +10,8 @@ function useCheckin() {
   const clientQuery = useQueryClient();
   const navigate = useNavigate();
   const { isPending: isCheckin, mutate } = useMutation({
-    mutationFn: (id) => updateBooking(id, obj),
+    mutationFn: ({ bookingId, extrasObject }) =>
+      updateBooking(bookingId, { ...obj, ...extrasObject }),
     onError: (err) => toast.error("Can not check in user " + err?.message),
     onSuccess: (data) => {
       toast.success(`Guest with ${data.id} checked in successfully `);
