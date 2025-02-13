@@ -42,6 +42,7 @@ function Filter({ feildValue, options }) {
   const acitve = searchParams.get(feildValue) || "all";
   const handleClick = (value) => {
     searchParams.set(feildValue, value);
+    if (searchParams.get("page")) searchParams.set("page", 1);
     setSearchParams(searchParams);
   };
   return (
