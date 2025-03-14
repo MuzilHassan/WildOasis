@@ -7,7 +7,6 @@ function ProtectedRoute({ children }) {
   const { isPending, data } = useUser();
   const navigate = useNavigate();
 
-  //
   useEffect(() => {
     if (data?.user?.role != "authenticated" && !isPending) navigate("/login");
   }, [data?.user?.role, isPending, navigate]);
